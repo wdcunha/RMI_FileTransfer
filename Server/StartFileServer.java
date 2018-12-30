@@ -10,8 +10,6 @@ public class StartFileServer {
 			FileServer fs = new FileServer();
 			Naming.rebind("rmi://localhost/abc", fs);
 			System.out.println("File Server is Up!");
-			fs.createFile();
-			fs.checksum();
 
 		} catch(Exception e){
 			e.printStackTrace();

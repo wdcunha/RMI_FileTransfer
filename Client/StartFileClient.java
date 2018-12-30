@@ -11,6 +11,8 @@ public class StartFileClient {
 
 			System.out.println("Receiving file.....");
 			FileClient fc = new FileClient();
+			server.createFile();
+			server.checksum();
 			server.sendFile(fc);
 		} catch(Exception e){
 			e.printStackTrace();

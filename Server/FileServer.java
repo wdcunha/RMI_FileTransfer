@@ -23,27 +23,28 @@ public class FileServer  extends UnicastRemoteObject implements FileServerInt {
 
 	public boolean sendFile(FileClientInt fc) throws RemoteException{
 		/* send the file...*/
-
 		 try{
-
+			 MessageDigest digest = MessageDigest.getInstance("SHA-256");
 			 File f1 = new File(file);
 			 FileInputStream in = new FileInputStream(f1);
 			 byte [] fileData = new byte[1024];
 			 int fileLen = in.read(fileData);
 			 String fileName = "files/"+f1.getName();
 			 while(fileLen > 0){
-				 fc.sendData(fileName, fileData, fileLen);
+				 digest.update(fileData, 0, fileLen);
+				 fc.clientReceiveData(fileName, fileData, fileLen);
+				 System.out.println("fileLen: " + fileLen);
 				 fileLen = in.read(fileData);
 			 }
+			 byte[] hash = digest.digest();
+			 System.out.println("MessageDigest SendFile: " + hash.toString());
 
 		 } catch(Exception e){
 			 e.printStackTrace();
 		 }
-
 		return true;
 	}
 	public boolean checksum() throws RemoteException{
-
 		try {
 			byte[] buffer= new byte[1024];
 			int count;
@@ -52,22 +53,17 @@ public class FileServer  extends UnicastRemoteObject implements FileServerInt {
 			while ((count = bis.read(buffer)) > 0) {
 				digest.update(buffer, 0, count);
 			}
-
 			bis.close();
-
 			byte[] hash = digest.digest();
 			String base64encodedString = Base64.getEncoder().encodeToString(hash);
 			// System.out.println(new Base64.Encoder().encode(hash));
 			System.out.println("MessageDigest: " + hash.toString());
 			System.out.println("base64encodedString: " + base64encodedString);
-
 		} catch(Exception e){
 			e.printStackTrace();
 		}
 		return true;
-
 	}
-
 
 	public boolean createFile() throws RemoteException{
 		try {
