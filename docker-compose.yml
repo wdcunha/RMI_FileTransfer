@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  server:
+    image: server
+    volumes:
+      - 'servervol:/serverdata'
+    networks:
+      - my_rmi_msgr_network
+
+  client:
+    depends_on:
+      - 'server'
+    image: client
+    volumes:
+      - 'clientvol:/clientdata'
+    networks:
+      - my_rmi_msgr_network
+
+networks:
+  my_rmi_msgr_network:
+
+volumes:
+  servervol:
+  clientvol:

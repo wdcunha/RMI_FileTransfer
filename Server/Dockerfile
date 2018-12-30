@@ -7,4 +7,6 @@ COPY . /serverdata
 
 EXPOSE 1099
 
-CMD java StartFileServer
+RUN chmod +x runServer.sh
+
+CMD ["runServer.sh"]

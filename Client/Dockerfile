@@ -7,4 +7,6 @@ COPY . /clientdata
 
 EXPOSE 1099
 
-CMD java StartFileClient
+RUN chmod +x runClient.sh
+
+CMD ["runClient.sh"]

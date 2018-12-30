@@ -5,7 +5,9 @@ import java.rmi.*;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.io.RandomAccessFile;
-
+import java.security.MessageDigest;
+import java.io.BufferedInputStream;
+import java.util.Base64.*;
 
 public class FileServer  extends UnicastRemoteObject implements FileServerInt {
 
@@ -40,6 +42,32 @@ public class FileServer  extends UnicastRemoteObject implements FileServerInt {
 
 		return true;
 	}
+	public boolean checksum() throws RemoteException{
+
+		try {
+			byte[] buffer= new byte[1024];
+			int count;
+			MessageDigest digest = MessageDigest.getInstance("SHA-256");
+			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+			while ((count = bis.read(buffer)) > 0) {
+				digest.update(buffer, 0, count);
+			}
+
+			bis.close();
+
+			byte[] hash = digest.digest();
+			String base64encodedString = Base64.getEncoder().encodeToString(hash);
+			// System.out.println(new Base64.Encoder().encode(hash));
+			System.out.println("MessageDigest: " + hash.toString());
+			System.out.println("base64encodedString: " + base64encodedString);
+
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+		return true;
+
+	}
+
 
 	public boolean createFile() throws RemoteException{
 		try {
