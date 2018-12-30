@@ -7,7 +7,7 @@ public class StartFileClient {
 	public static void main(String[] args) {
 		try{
 
-			FileServerInt server = (FileServerInt)Naming.lookup("rmi://localhost/abc");
+			FileServerInt server = (FileServerInt)Naming.lookup("rmi://server/abc");
 
 			System.out.println("Receiving file.....");
 			FileClient fc = new FileClient();
