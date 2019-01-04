@@ -1,17 +1,16 @@
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.rmi.*;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.io.RandomAccessFile;
 import java.security.MessageDigest;
 import java.io.BufferedInputStream;
-import java.util.Base64.*;
 
 public class FileServer  extends UnicastRemoteObject implements FileServerInt {
 
 	private String file = "";
+	private String checksumServer = "";
 
 	protected FileServer() throws RemoteException {
 		super();
@@ -21,23 +20,22 @@ public class FileServer  extends UnicastRemoteObject implements FileServerInt {
 		file = f;
 	}
 
+	public void setChecksum(String chk){
+		checksumServer = chk;
+	}
+
 	public boolean sendFile(FileClientInt fc) throws RemoteException{
 		/* send the file...*/
 		 try{
-			 MessageDigest digest = MessageDigest.getInstance("SHA-256");
 			 File f1 = new File(file);
 			 FileInputStream in = new FileInputStream(f1);
 			 byte [] fileData = new byte[1024];
 			 int fileLen = in.read(fileData);
 			 String fileName = "files/"+f1.getName();
 			 while(fileLen > 0){
-				 digest.update(fileData, 0, fileLen);
-				 fc.clientReceiveData(fileName, fileData, fileLen);
-				 System.out.println("fileLen: " + fileLen);
+				 fc.clientReceiveData(fileName, fileData, fileLen, checksumServer);
 				 fileLen = in.read(fileData);
 			 }
-			 byte[] hash = digest.digest();
-			 System.out.println("MessageDigest SendFile: " + hash.toString());
 
 		 } catch(Exception e){
 			 e.printStackTrace();
@@ -48,17 +46,19 @@ public class FileServer  extends UnicastRemoteObject implements FileServerInt {
 		try {
 			byte[] buffer= new byte[1024];
 			int count;
-			MessageDigest digest = MessageDigest.getInstance("SHA-256");
+			MessageDigest digest = MessageDigest.getInstance("SHA1");
 			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
 			while ((count = bis.read(buffer)) > 0) {
 				digest.update(buffer, 0, count);
 			}
 			bis.close();
 			byte[] hash = digest.digest();
-			String base64encodedString = Base64.getEncoder().encodeToString(hash);
-			// System.out.println(new Base64.Encoder().encode(hash));
-			System.out.println("MessageDigest: " + hash.toString());
-			System.out.println("base64encodedString: " + base64encodedString);
+			StringBuffer sb = new StringBuffer("");
+			for (int i = 0; i < hash.length; i++) {
+				sb.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
+			}
+			System.out.println("Checksum for the File: " + sb.toString());
+			setChecksum(sb.toString());
 		} catch(Exception e){
 			e.printStackTrace();
 		}
@@ -75,7 +75,7 @@ public class FileServer  extends UnicastRemoteObject implements FileServerInt {
 			Random random = new Random();
 			StringBuilder buffer = new StringBuilder(targetStringLength);
 
-			// varialbes used for dividing in letter groups according to the random length
+			// Variables used for dividing in letter groups according to the random length
 			int count = 0;
 			int[] wordLen = {2,3,4,5,6,7};
 			Random randomArr = new Random();
@@ -87,7 +87,7 @@ public class FileServer  extends UnicastRemoteObject implements FileServerInt {
 				buffer.append((char) randomLimitedInt);
 
 				// check if the randomly length (leng) was gotten
-				// then count take a new lenght
+				// then count take a new length
 				count++;
 				if(count == leng){
 					buffer.append('\u0009');
@@ -97,14 +97,11 @@ public class FileServer  extends UnicastRemoteObject implements FileServerInt {
 			}
 			String generatedString = buffer.toString();
 
-			System.out.println(generatedString);
 			f.writeUTF(generatedString);
 			f.setLength(1024);
-
-			System.out.println(f);
-			System.out.println("File created succesfully!");
 			f.close();
 			setFile(fileName);
+			System.out.println("File created succesfully: " + fileName);
 
 		} catch(Exception e) {
 			e.printStackTrace();
