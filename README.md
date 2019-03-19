@@ -32,11 +32,17 @@ In this case it will be needed to change the server address in the StartFileClie
 
 `docker run --network=rmi_fileTransfer --name server servervol`
 
+>>> TIP: There's a little trick detail that is to put the server address in the Client/StartFileClient.java as the same name (--name server) given in the previous command
+
+
+			FileServerInt server = (FileServerInt)Naming.lookup("rmi://server/abc");
+
+
 * Run the clientvol image
 
 `docker run --network=rmi_fileTransfer -it clientvol `
 
-Here there's a little trick that is to put the server address in the StartFileClient as the same name given in the previous command
+
 
 Requirements
 ------------
