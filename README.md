@@ -34,7 +34,7 @@ In this case it will be needed to change the server address in the StartFileClie
 
 * Run the clientvol image
 
-`docker run --network=my_rmi_msgr_network -it clientvol `
+`docker run --network=rmi_fileTransfer -it clientvol `
 
 Here there's a little trick that is to put the server address in the StartFileClient as the same name given in the previous command
 
